@@ -2,6 +2,7 @@
 import random
 import tkinter as tk
 
+
 class Game:
     def __init__(self, root):
         self.root = root
