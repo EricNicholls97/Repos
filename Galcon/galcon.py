@@ -62,6 +62,7 @@ class Game:
                             circle.number *= -1
                             circle.color = "blue"
                             circle.canvas.itemconfigure(circle.circle_id, fill=circle.color)
+                            circle._schedule_increment(0)
                         
                         self.selected_circle.draw()
                         circle.draw()
@@ -83,16 +84,18 @@ class Circle:
         self.x = random.randint(0, max_x)
         self.y = random.randint(0, max_y)
         self.radius = random.randint(10, 30)
+        self.number = random.randint(1, 50)
         self.color = "gray"
         if color != None:
             self.color = color
             self.radius = 30
-        self.number = random.randint(1, 50)
+            self.number = 100
         self.circle_id = canvas.create_oval(self.x-self.radius, self.y-self.radius, self.x+self.radius, self.y+self.radius, fill=self.color)
         self.text_id = canvas.create_text(self.x, self.y, text=str(self.number), fill='white')
         self.selected = False
 
-        self.timer = self._schedule_increment(0)
+        if color != None:
+            self._schedule_increment(0)
     
 
     def _schedule_increment(self, i):       
