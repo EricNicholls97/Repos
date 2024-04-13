@@ -13,14 +13,17 @@ class Game:
         Parameters:
             root (Tk): The root tkinter object for the game
         """
+        self.width = 1000
+        self.height = 800
+
         self.root = root
-        self.canvas = tk.Canvas(root, width=1000, height=800, bg='white')
+        self.canvas = tk.Canvas(root, width=1000, height=800, bg='black')
         self.canvas.pack()
 
         self.click_amount = 0.5
 
         # Create the player circle
-        self.player = Circle(self.canvas, 500, 400, 20, "blue", 100)
+        self.player = Circle(self.canvas, self.width, self.height, "blue")
         self.player.draw()
 
         # List of all circles in the game, including the player
@@ -28,7 +31,7 @@ class Game:
 
         # Add some random circles to the game
         for _ in range(20):
-            self.existing_circles.append(Circle(self.canvas, random.randint(100, 900), random.randint(100, 700), 20, "gray", random.randint(1,50)))
+            self.existing_circles.append(Circle(self.canvas, self.width, self.height))
             self.existing_circles[-1].draw()
 
         # Currently selected circle
@@ -36,6 +39,7 @@ class Game:
 
         # Add a binding to the left mouse button for selecting circles
         self.root.bind("<Button-1>", self.select_circle)
+        
 
     def select_circle(self, event):
         """
@@ -67,26 +71,51 @@ class Game:
 
 class Circle:
     """ This class represents a circle on the game board """
-    def __init__(self, canvas, x, y, radius, color, number):
+    def __init__(self, canvas, max_x, max_y, color=None):
         """
         Constructor for the Circle class
         Parameters:
             canvas (Canvas): The canvas object on which to draw the circle
-            x (int): The x-coordinate of the center of the circle
-            y (int): The y-coordinate of the center of the circle
-            radius (int): The radius of the circle
-            color (str): The color of the circle
-            number (int): The number of units in the circle
+            max_x (int): The maximum x-coordinate
+            max_y (int): The maximum y-coordinate
         """
         self.canvas = canvas
-        self.x = x
-        self.y = y
-        self.radius = radius
-        self.color = color
-        self.number = number
-        self.circle_id = canvas.create_oval(x-radius, y-radius, x+radius, y+radius, fill=color)
-        self.text_id = canvas.create_text(x, y, text=str(number), fill='white')
+        self.x = random.randint(0, max_x)
+        self.y = random.randint(0, max_y)
+        self.radius = random.randint(10, 30)
+        self.color = "gray"
+        if color != None:
+            self.color = color
+            self.radius = 30
+        self.number = random.randint(1, 50)
+        self.circle_id = canvas.create_oval(self.x-self.radius, self.y-self.radius, self.x+self.radius, self.y+self.radius, fill=self.color)
+        self.text_id = canvas.create_text(self.x, self.y, text=str(self.number), fill='white')
         self.selected = False
+
+        self.timer = self._schedule_increment(0)
+    
+
+    def _schedule_increment(self, i):       
+        """ Every 1/4 second, increment this number based on its radius. Highest radius increments every time. Lower radius increments every 4 times"""
+        increment_lookup = { (28, 30): 3, 
+                             (24, 27): 4,
+                             (20, 23): 5,
+                             (15, 19): 6,
+                             (10, 14): 7 }
+        
+        for key in increment_lookup.keys():
+            if key[0] <= self.radius <= key[1]:
+                increme = increment_lookup[key]
+                break
+        
+        if i % increme == 0:
+            self.number += 1
+            self.canvas.itemconfigure(self.text_id, text=str(self.number))
+        
+        self.canvas.after(250, self._schedule_increment, i+1)
+
+
+
 
     def draw(self):
         """ Redraws the circle on the canvas"""
@@ -102,3 +131,4 @@ root = tk.Tk()
 root.title("Galcon")
 game = Game(root)
 root.mainloop()
+
