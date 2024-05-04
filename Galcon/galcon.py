@@ -1,4 +1,3 @@
-<<<<<<<<<<<<<<  ✨ Codeium Command 🌟 >>>>>>>>>>>>>>>>
 
 import random
 import tkinter as tk
@@ -14,11 +13,11 @@ class Game:
         Parameters:
             root (Tk): The root tkinter object for the game
         """
-        self.width = 1000
-        self.height = 800
+        self.width = 2000
+        self.height = 1200
 
         self.root = root
-        self.canvas = tk.Canvas(root, width=1000, height=800, bg='black')
+        self.canvas = tk.Canvas(root, width=self.width, height=self.height, bg='black')
         self.canvas.pack()
 
         self.click_amount = 0.5
@@ -32,8 +31,7 @@ class Game:
 
         # Add some random circles to the game
         for _ in range(20):
-+            self.existing_circles.append(self._create_unique_circle(self.canvas, self.width, self.height))
--            self.existing_circles.append(Circle(self.canvas, self.width, self.height))
+            self.existing_circles.append(Circle(self.canvas, self.width, self.height))
             self.existing_circles[-1].draw()
 
         # Currently selected circle
@@ -43,21 +41,6 @@ class Game:
         self.root.bind("<Button-1>", self.select_circle)
         
 
-+    def _create_unique_circle(self, canvas, max_x, max_y):
-+        """ Creates a unique circle that doesn't overlap with any existing circles"""
-+        new_circle = Circle(canvas, max_x, max_y)
-+        while True:
-+            for circle in self.existing_circles:
-+                distance = ((new_circle.x - circle.x) ** 2 + (new_circle.y - circle.y) ** 2) ** 0.5
-+                if distance < new_circle.radius + circle.radius:
-+                    new_circle.x = random.randint(0, max_x)
-+                    new_circle.y = random.randint(0, max_y)
-+                    break
-+            else:
-+                break
-+        return new_circle
-+    
-+
     def select_circle(self, event):
         """
         Selects a circle when the left mouse button is pressed
@@ -153,4 +136,3 @@ game = Game(root)
 root.mainloop()
 
 
-<<<<<<<  907098da-de76-40e5-8e52-6cc2c17171c8  >>>>>>>
