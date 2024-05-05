@@ -16,7 +16,7 @@ class Game:
         self.width = 2000
         self.height = 1200
 
-        self.number_of_neutrals = 5
+        self.number_of_neutrals = 20
 
         self.root = root
         self.canvas = tk.Canvas(root, width=self.width, height=self.height, bg='black')
@@ -29,12 +29,12 @@ class Game:
         self.player.draw()
 
 
-        # Create the AI 1 circle
-        self.ai_1 = Circle(self.canvas, self.width, self.height, "red")
-        self.ai_1.draw()
+        # Create the AI red initial circle
+        self.ai_red = [Circle(self.canvas, self.width, self.height, "red")]
+        self.ai_red[0].draw()
 
         # List of all circles in the game, including the player
-        self.existing_circles = [self.player, self.ai_1]
+        self.existing_circles = [self.player, self.ai_red[0]]
 
         # Add some random circles to the game
         for _ in range(self.number_of_neutrals):
@@ -47,7 +47,7 @@ class Game:
         # Add a binding to the left mouse button for selecting circles
         self.root.bind("<Button-1>", self.select_circle)
         
-        self._schedule_ai_1_selection(0)
+        self._schedule_ai_selection(self.ai_red[0], 0)
         
 
     def select_circle(self, event):
@@ -79,24 +79,27 @@ class Game:
                 break
 
 
-    def _schedule_ai_1_selection(self, i):
+    def _schedule_ai_selection(self, circle, i):
         """ Every 1/2 second, randomly select a circle to attack """
-        planets_excluding_mine = [circ for circ in self.existing_circles if circ.color != self.ai_1.color]
+        
+        planets_excluding_mine = [circ for circ in self.existing_circles if circ.color != circle.color]
         circle_to_attack = random.choice(planets_excluding_mine)
         
-        amount = self.ai_1.number // 2
-        self.ai_1.number -= amount
+        amount = circle.number // 2
+        circle.number -= amount
         circle_to_attack.number -= amount
-        if circle_to_attack.number <= 0:
+        if circle_to_attack.number <= 0:    # planet is captured and under ai control
             circle_to_attack.number *= -1
-            circle_to_attack.color = self.ai_1.color
+            circle_to_attack.color = circle.color
             circle_to_attack.canvas.itemconfigure(circle_to_attack.circle_id, fill=circle_to_attack.color)
             circle_to_attack._schedule_increment(0)
+            self.ai_red.append(circle_to_attack)
 
-        self.ai_1.draw()
+        circle.draw()
         circle_to_attack.draw()
         
-        self.canvas.after(1000, self._schedule_ai_1_selection, i+1)
+        for c in self.ai_red:
+            self.canvas.after(1000, self._schedule_ai_selection, c, i+1)
 
 
 class Circle:
